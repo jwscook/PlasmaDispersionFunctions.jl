@@ -1,0 +1,17 @@
+name = "PlasmaDispersionFunctions"
+uuid = "9207f8dc-3231-463e-84ff-2de753abf806"
+authors = ["James Cook <cookjws@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+SeriesAccelerators = "9dd7a2f8-ab8d-577c-ac83-a3992ff7c30e"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
+
+[compat]
+julia = "1"
