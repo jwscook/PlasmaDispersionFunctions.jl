@@ -1,9 +1,10 @@
 module PlasmaDispersionFunctions
 
-using SeriesAccelerators, ContinuedFractions
+using ContinuedFractions, SeriesAccelerators, HypergeometricFunctions
+using SpecialFunctions
 import SpecialFunctions.erfcx
 
-export plasmadispersionfunction
+export plasma_dispersion_function
 
 """
 Return the value of the plasma dispersion function
@@ -46,11 +47,9 @@ function _erfcx(z::Number)
   isconverged && return output
   error("erfcx not converged for argument $z")
 end
-function erfcx_smallarg(z::T, rtol=eps(real(T))^(1/4)) where {T<:Number}
-  u = SArray{Tuple{1},Int,1,1}(1)
-  v = SArray{Tuple{1},Float64,1,1}(3 / 2)
-  y, isconverged = pFq(u, v, z^2, Tolerances.Tolerance(rtol))
-  return exp(z^2) - 2 * z / sqrt(π) * y, isconverged
+function erfcx_smallarg(z::T) where {T<:Number}
+  y = HypergeometricFunctions.mFncontinuedfraction([1], [1.5], z^2)
+  return exp(z^2) - 2 * z / sqrt(π) * y, true
 end
 function erfcx_largearg(z::T, rtol=eps(real(T))^(1/4)) where {T<:Number}
   summand(m, z) = (-1)^m * exp(logpochhammer(0.5, m) - (2m + 1) * log(z))
