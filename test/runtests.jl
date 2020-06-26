@@ -1,7 +1,8 @@
 using PlasmaDispersionFunctions
-using SpecialFunctions, QuadGK, Test
+using SpecialFunctions, QuadGK, Test, Random
 
 @testset "Tests" begin
+  Random.seed!(3)
 
 @testset "Plasma dispersion function" begin
   @test plasma_dispersion_function(0.0, 0) ≈ im*sqrt(pi) rtol=0.001
@@ -15,7 +16,7 @@ end
     isfinite(erfcx(z)) || continue
     t = @elapsed erfcxbigz = PlasmaDispersionFunctions.erfcx(big(z))
     @test t < 3
-    @test erfcxbigz ≈ erfcx(z) rtol=1000eps()
+    @test erfcxbigz ≈ erfcx(z) rtol=1e3eps()
   end
 end
 
