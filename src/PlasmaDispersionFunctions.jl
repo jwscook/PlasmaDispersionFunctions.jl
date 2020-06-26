@@ -1,7 +1,6 @@
 module PlasmaDispersionFunctions
 
-using ContinuedFractions, SeriesAccelerators, HypergeometricFunctions
-using SpecialFunctions
+using ContinuedFractions, SeriesAccelerators, SpecialFunctions
 import SpecialFunctions.erfcx
 
 export plasma_dispersion_function
@@ -48,8 +47,8 @@ function _erfcx(z::Number)
   error("erfcx not converged for argument $z")
 end
 function erfcx_smallarg(z::T) where {T<:Number}
-  y = HypergeometricFunctions.mFncontinuedfraction([1], [1.5], z^2)
-  return exp(z^2) - 2 * z / sqrt(π) * y, true
+  y, isconverged = pFq(1, 1.5, z^2)
+  return exp(z^2) - 2 * z / sqrt(π) * y, isconverged
 end
 function erfcx_largearg(z::T, rtol=eps(real(T))^(1/4)) where {T<:Number}
   summand(m, z) = (-1)^m * exp(logpochhammer(0.5, m) - (2m + 1) * log(z))
@@ -60,6 +59,15 @@ function erfcx_largearg(z::T, rtol=eps(real(T))^(1/4)) where {T<:Number}
     output, isconverged = shanks(i->summand(i, -z), 3, rtol=rtol)
     return (2 * exp(z^2) - output / sqrt(π)), isconverged
   end
+end
+
+function pFq(a::S, b::U, z::V, rtol=sqrt(eps(real(promote_type(S, U, V))))
+    ) where {S<:Number, U<:Number, V<:Number}
+  numerator(i) = - z * prod(i .+ a) / (i + 1) / prod(i .+ b)
+  denominator(i) = 1 - numerator(i)
+  K, isconverged = continuedfraction(denominator, numerator, rtol=rtol)
+  K -= denominator(0)
+  return 1 + z * prod(a) / prod(b) / (1 + K), isconverged
 end
 
 end
