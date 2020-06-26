@@ -16,7 +16,7 @@ end
     isfinite(erfcx(z)) || continue
     t = @elapsed erfcxbigz = PlasmaDispersionFunctions.erfcx(big(z))
     @test t < 3
-    @test erfcxbigz ≈ erfcx(z) rtol=1e3eps()
+    @test erfcxbigz ≈ erfcx(z) rtol=1e5eps()
   end
 end
 
