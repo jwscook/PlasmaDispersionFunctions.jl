@@ -60,4 +60,8 @@ end
   end
 end
 
+@testset "check errors are caught" begin
+  @test_throws ArgumentError plasma_dispersion_function(1.0, -1)
+end
+
 end
