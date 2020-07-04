@@ -10,3 +10,7 @@ Julia implementation of the plasma dispersion function
 with a recurrence relation
 
 <a href="https://www.codecogs.com/eqnedit.php?latex={\it&space;Z}^n(x)&space;=&space;x&space;{\it&space;Z}^{n-1}(x)&space;&plus;&space;\delta_{0,&space;n&space;\mathrm{mod}&space;2}&space;2^{\frac{1-n}{2}}&space;\Pi_{i=1}^{\frac{n-3}{2}}&space;\left(&space;2i&space;&plus;&space;1&space;\right)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?{\it&space;Z}^n(x)&space;=&space;x&space;{\it&space;Z}^{n-1}(x)&space;&plus;&space;\delta_{0,&space;n&space;\mathrm{mod}&space;2}&space;2^{\frac{1-n}{2}}&space;\Pi_{i=1}^{\frac{n-3}{2}}&space;\left(&space;2i&space;&plus;&space;1&space;\right)" title="{\it Z}^n(z) = z {\it Z}^{n-1}(z) + \delta_{0, n \mathrm{mod} 2} 2^{\frac{1-n}{2}} \Pi_{i=1}^{\frac{n-3}{2}} \left( 2i + 1 \right)" /></a>.
+
+and
+
+<a href="https://www.codecogs.com/eqnedit.php?latex={\it&space;Z}^0(z)&space;=&space;i&space;\sqrt{\pi}&space;\mathrm{erfcx}&space;\left(-i&space;z&space;\right)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?{\it&space;Z}^0(z)&space;=&space;i&space;\sqrt{\pi}&space;\mathrm{erfcx}&space;\left(-i&space;z&space;\right)" title="{\it Z}^0(z) = i \sqrt{\pi} \mathrm{erfcx} \left(-i z \right)" /></a>
