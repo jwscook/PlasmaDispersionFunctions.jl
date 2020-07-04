@@ -5,7 +5,7 @@
 
 Julia implementation of the plasma dispersion function
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=\it{Z}^n(z)=\frac{1}{\sqrt{\pi}}\int_{\infty}^{\infty}\frac{x^n&space;e^{-x^2}}{x-z}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\it{Z}^n(z)=\frac{1}{\sqrt{\pi}}\int_{\infty}^{\infty}\frac{x^n&space;e^{-x^2}}{x-z}" title="\it{Z}^n(z)=\frac{1}{\sqrt{\pi}}\int_{\infty}^{\infty}\frac{x^n e^{-x^2}}{x-z}" /></a>,
+<a href="https://www.codecogs.com/eqnedit.php?latex=\it{Z}^n(z)=\frac{1}{\sqrt{\pi}}\int_{\infty}^{\infty}\frac{x^n&space;e^{-x^2}}{x-z}dx" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\it{Z}^n(z)=\frac{1}{\sqrt{\pi}}\int_{\infty}^{\infty}\frac{x^n&space;e^{-x^2}}{x-z}dx" title="\it{Z}^n(z)=\frac{1}{\sqrt{\pi}}\int_{\infty}^{\infty}\frac{x^n e^{-x^2}}{x-z}dx" /></a>,
 
 with a recurrence relation
 
