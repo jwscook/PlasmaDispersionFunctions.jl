@@ -9,7 +9,7 @@ Julia implementation of the plasma dispersion function
 
 with a recurrence relation
 
-<a href="https://www.codecogs.com/eqnedit.php?latex={\it&space;Z}_n(x)&space;=&space;x&space;{\it&space;Z}_{n-1}(x)&space;&plus;&space;\delta_{0,&space;n&space;\mathrm{mod}&space;2}&space;2^{\frac{1-n}{2}}&space;\Pi_{i=1}^{\frac{n-3}{2}}&space;\left(&space;2i&space;&plus;&space;1&space;\right)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?{\it&space;Z}_n(x)&space;=&space;x&space;{\it&space;Z}_{n-1}(x)&space;&plus;&space;\delta_{0,&space;n&space;\mathrm{mod}&space;2}&space;2^{\frac{1-n}{2}}&space;\Pi_{i=1}^{\frac{n-3}{2}}&space;\left(&space;2i&space;&plus;&space;1&space;\right)" title="{\it Z}_n(z) = z {\it Z}_{n-1}(z) + \delta_{0, n \mathrm{mod} 2} 2^{\frac{1-n}{2}} \Pi_{i=1}^{\frac{n-3}{2}} \left( 2i + 1 \right)" /></a>.
+<a href="https://www.codecogs.com/eqnedit.php?latex={\it&space;Z}_n(z)&space;=&space;z&space;{\it&space;Z}_{n-1}(z)&space;&plus;&space;\delta_{0,&space;n&space;\mathrm{mod}&space;2}&space;2^{\frac{1-n}{2}}&space;\Pi_{i=1}^{\frac{n-3}{2}}&space;\left(&space;2i&space;&plus;&space;1&space;\right)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?{\it&space;Z}_n(z)&space;=&space;z&space;{\it&space;Z}_{n-1}(z)&space;&plus;&space;\delta_{0,&space;n&space;\mathrm{mod}&space;2}&space;2^{\frac{1-n}{2}}&space;\Pi_{i=1}^{\frac{n-3}{2}}&space;\left(&space;2i&space;&plus;&space;1&space;\right)" title="{\it Z}_n(z) = z {\it Z}_{n-1}(z) + \delta_{0, n \mathrm{mod} 2} 2^{\frac{1-n}{2}} \Pi_{i=1}^{\frac{n-3}{2}} \left( 2i + 1 \right)" /></a>.
 
 and
 
