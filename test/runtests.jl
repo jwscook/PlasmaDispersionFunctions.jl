@@ -46,17 +46,13 @@ end
   push!(Zs, -1.0 + im/4)
   push!(Zs,  1.0 - im/4)
   push!(Zs, -1.0 - im/4)
-  @testset "QuadGK of maxwellian with 0th moment" begin
-    test_quad(Zs, 0)
+  for j in 1:10
+    push!(Zs, 4 * (rand() - 0.5) + im * 4 * (rand() - 0.5))
   end
-  @testset "QuadGK of maxwellian with 1st moment" begin
-    test_quad(Zs, 1)
-  end
-  @testset "QuadGK of maxwellian with 2nd moment" begin
-    test_quad(Zs, 2)
-  end
-  @testset "QuadGK of maxwellian with 10th moment" begin
-    test_quad(Zs, 10)
+  for i in 0:10
+    @testset "QuadGK of maxwellian with $(i)th moment" begin
+      test_quad(Zs, i)
+    end
   end
 end
 
