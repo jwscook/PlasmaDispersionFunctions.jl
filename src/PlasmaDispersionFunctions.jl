@@ -4,6 +4,11 @@ using SpecialFunctions
 
 export plasma_dispersion_function
 
+function constant(i::Unsigned, ::Type{T}) where {T}
+  iseven(i) && return  T(0)
+  isone(i) && return T(1)
+  return T(prod(1:2:(i - 2)) / T(2)^div(i - 1, 2))
+end
 """
 Return the value of the plasma dispersion function
 This implementation includes the residue, which is easy to verify
@@ -17,16 +22,16 @@ because Z(0) = im sqrt(π).
   Journal of Quantitative Spectroscopy & Radiative Transfer (2006),
   doi:10.1016/j.jqsrt.2006.08.011
 """
-function plasma_dispersion_function(z::T, n::Int=0) where {T<:Number}
-  n < 0 && throw(ArgumentError("n, $n, must be >= 0"))
-  @assert isfinite(z) "z = $z"
+function plasma_dispersion_function(z::T, n::Unsigned=UInt64(0)) where {T}
   if n > 0
     Z_1 = plasma_dispersion_function(z, n - 1)
-    numerator(i) = iseven(i) ? 0 : prod(1:2:(i - 2))
-    denominator(i) = 2^((i - 1) / 2)
-    return z * Z_1 + numerator(n) / denominator(n)
+    return z * Z_1 + constant(n, T)
   end
   return im * (sqrt(π) * erfcx(-im * z)) # the parentheses have to be here!
+end
+function plasma_dispersion_function(z::T, n::Integer) where {T}
+  n < 0 && throw(ArgumentError("n, $n, must be >= 0"))
+  return plasma_dispersion_function(z::T, Unsigned(n))
 end
 
 end

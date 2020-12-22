@@ -8,11 +8,11 @@ erfcx(x::Complex{BigFloat}) = erfcx(ArbComplex(x))
 Random.seed!(0)
 
 @testset "Plasma dispersion function" begin
-  @test plasma_dispersion_function(0.0, 0) ≈ im*sqrt(pi) rtol=1e-5
-  @test plasma_dispersion_function(im, 0) ≈ im*0.757872156141312 rtol=1e-5
+  @test plasma_dispersion_function(0.0) ≈ im*sqrt(pi) rtol=1e-5
+  @test plasma_dispersion_function(im) ≈ im*0.757872156141312 rtol=1e-5
   @test plasma_dispersion_function(ComplexF64(-1.52, 0.47), 0) ≈
     ComplexF64(0.6088888957234254, 0.33494583882874024) rtol=1e-5
-  @test plasma_dispersion_function(big(0.0+0im), 0) ≈
+  @test plasma_dispersion_function(big(0.0+0im)) ≈
     ArbComplex(im*sqrt(pi)) rtol=1e-5
 end
 
@@ -29,7 +29,7 @@ end
       end
       σ = imag(z) < 0 ? 2 : imag(z) == 0 ? 1 : 0
       cauchyresidue = im * (σ * π * principal(z))
-      t2 = @elapsed b = PlasmaDispersionFunctions.plasma_dispersion_function(z, pow)
+      t2 = @elapsed b = plasma_dispersion_function(z, pow)
       a = principalpart + cauchyresidue
       @test real(a) ≈ real(b) rtol=sqrt(eps()) atol=0.0
       @test imag(a) ≈ imag(b) rtol=sqrt(eps()) atol=0.0
@@ -46,7 +46,7 @@ end
   for j in 1:10
     push!(Zs, 4 * (rand() - 0.5) + im * 4 * (rand() - 0.5))
   end
-  for i in 0:10
+  for i in Unsigned.(0:10)
     @testset "QuadGK of maxwellian with $(i)th moment" begin
       test_quad(Zs, i)
     end
