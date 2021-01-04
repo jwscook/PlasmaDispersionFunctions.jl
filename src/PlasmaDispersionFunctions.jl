@@ -23,11 +23,8 @@ because Z(0) = im sqrt(π).
   doi:10.1016/j.jqsrt.2006.08.011
 """
 function plasma_dispersion_function(z::T, n::Unsigned=UInt64(0)) where {T}
-  if n > 0
-    Z_1 = plasma_dispersion_function(z, n - 1)
-    return z * Z_1 + constant(n, T)
-  end
-  return im * (sqrt(π) * erfcx(-im * z)) # the parentheses have to be here!
+  iszero(n) && return im * (sqrt(π) * erfcx(-im * z))
+  return z * plasma_dispersion_function(z, n - 1) + constant(n, T)
 end
 function plasma_dispersion_function(z::T, n::Integer) where {T}
   n < 0 && throw(ArgumentError("n, $n, must be >= 0"))
