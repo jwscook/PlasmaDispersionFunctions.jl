@@ -16,6 +16,14 @@ Random.seed!(0)
     ArbComplex(im*sqrt(pi)) rtol=1e-5
 end
 
+@testset "using Z₋₁" begin
+  Z0 = plasma_dispersion_function(0.0, 0)
+  Z1 = plasma_dispersion_function(0.0, 1)
+  @test Z1 == plasma_dispersion_function(0.0, 1, Z0)
+  Z2 = plasma_dispersion_function(0.0, 2)
+  @test Z2 == plasma_dispersion_function(0.0, 2, Z1)
+end
+
 @testset "vs quadrature" begin
   function test_quad(Z, pow)
     for z in Z
