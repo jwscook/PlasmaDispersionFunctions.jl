@@ -37,7 +37,8 @@ function plasma_dispersion_function(z::T, power::Unsigned=UInt64(0), Z₋₁=mis
     return iseven(i) ? T(0) : T(prod(1:2:(i - 2)) * T(2)^div(1 - i, 2))
   end
   if ismissing(Z₋₁)
-    Z = im * (sqrt(π) * erfcx(-im * z))
+    Z̄ = sqrt(π) * erfcx(Complex(imag(z), -real(z))) # hot loop; -im * z
+    Z = Complex(-imag(Z̄), real(Z̄)) # hot loop; im * Z̄
     for i ∈ 1:power
       Z = z * Z + _const(Signed(i))
     end
