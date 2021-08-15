@@ -1,10 +1,25 @@
+"""
+Calculate the plasma dispersion function
+
+```
+principal(n, x) = x.^n .* exp(-x.^2) / √π
+integrande(z, n, x) = P(x, n) / (x - z)
+residue(z, n, x) = (imag(z) < 0 ? 2 : imag(z) == 0 ? 1 : 0) * im * π * principal(n, z)
+Z(z, n) = ∫integrand(z, n, x)dx + residue(z, n, x)
+```
+
+# Example
+```jldoctest
+  plasma_dispersion_function(0.0) ≈ im * √π
+```
+"""
 module PlasmaDispersionFunctions
 
 using SpecialFunctions
 
 export plasma_dispersion_function
 
-"""
+"""@docs
     plasma_dispersion_function(z::T,power::Unsigned=UInt64(0),Z₋₁=missing)
 
 Return the value of the plasma dispersion function
@@ -25,8 +40,9 @@ power-1. If already calculated, passing this in saves some time.
 ```
 
 # References
-[1] S.D. Baalrud, Phys. Plasmas 20, 012118 (2013) and put ν = -Inf
-[2] M. Sampoorna et al., Generalized Voigt functions and their derivatives,
+[1] D. Fried and S. D. Conte, "The Plasma Dispersion Relation", Elsevier, 1961
+[2] S.D. Baalrud, Phys. Plasmas 20, 012118 (2013) and put ν = -Inf
+[3] M. Sampoorna et al., Generalized Voigt functions and their derivatives,
   Journal of Quantitative Spectroscopy & Radiative Transfer (2006),
   doi:10.1016/j.jqsrt.2006.08.011
 """
