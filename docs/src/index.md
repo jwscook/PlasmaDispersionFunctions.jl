@@ -4,10 +4,8 @@
 CurrentModule = PlasmaDispersionRelations
 ```
 
-## Functions
-
-```@docs
-plasma_dispersion_function(z, power)
+```@autodocs
+Modules = [PlasmaDispersionRelations]
 ```
 
 ## Index

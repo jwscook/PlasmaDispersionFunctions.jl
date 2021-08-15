@@ -29,7 +29,7 @@ end
     for z in Z
       principal(x) = x.^pow .* exp(-x.^2)/sqrt(pi)
       integrand(x) = principal(x) / (x-z)
-      t1 = @elapsed principalpart = if iszero(imag(z))
+      principalpart = if iszero(imag(z))
         folded(v) = (principal(v + real(z)) - principal(-v + real(z))) / v
         QuadGK.quadgk(folded, nextfloat(0.0), Inf, rtol=eps())[1]
       else
@@ -37,11 +37,10 @@ end
       end
       σ = imag(z) < 0 ? 2 : imag(z) == 0 ? 1 : 0
       cauchyresidue = im * (σ * π * principal(z))
-      t2 = @elapsed b = plasma_dispersion_function(z, pow)
+      b = plasma_dispersion_function(z, pow)
       a = principalpart + cauchyresidue
       @test real(a) ≈ real(b) rtol=sqrt(eps()) atol=0.0
       @test imag(a) ≈ imag(b) rtol=sqrt(eps()) atol=0.0
-      @test t2 < t1
     end
   end
   Zs = []
