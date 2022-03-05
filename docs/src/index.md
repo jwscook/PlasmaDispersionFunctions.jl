@@ -1,11 +1,11 @@
-# PlasmaDispersionRelations.jl Documentation
+# PlasmaDispersionFunctions.jl Documentation
 
 ```@meta
-CurrentModule = PlasmaDispersionRelations
+CurrentModule = PlasmaDispersionFunctions
 ```
 
 ```@autodocs
-Modules = [PlasmaDispersionRelations]
+Modules = [PlasmaDispersionFunctions]
 ```
 
 ## Index
