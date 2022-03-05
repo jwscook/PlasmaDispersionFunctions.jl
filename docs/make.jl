@@ -1,4 +1,4 @@
-using Documenter, PlasmaDispersionRelations
+using Documenter, PlasmaDispersionFunctions
 
 makedocs(sitename="PlasmaDispersionFunctions.jl")
 
