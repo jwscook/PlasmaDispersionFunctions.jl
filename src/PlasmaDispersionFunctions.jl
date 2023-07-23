@@ -124,7 +124,7 @@ function frtol(z::T) where {T<:Number}
 end
 frtol(z::T) where {T<:Real} = sqrt(eps(T))
 function generalisedplasmadispersionfunction(f::F, pole::Number, kz::Number=1;
-    atol=eps(), rtol=frtol(pole), quadorder=47, quadnorm::F1=quadnorm
+    atol=eps(), rtol=frtol(pole), quadorder=8, quadnorm::F1=quadnorm
     ) where {F, F1}
   integrand = foldnumeratoraboutpole(f, pole) # also divide by (v - pole)
   principal = first(quadgk(integrand, 0, Inf, rtol=rtol, atol=atol,
