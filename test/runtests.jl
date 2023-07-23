@@ -63,5 +63,27 @@ end
 @testset "check errors are caught" begin
   @test_throws ArgumentError plasma_dispersion_function(1.0, -1)
 end
+gpdr = generalised_plasma_dispersion_function
+pdr = plasma_dispersion_function
+@testset "Genearlised plasma dispersion function" begin
+  maxwellian(x) = exp(-x^2) / sqrt(π)
+  @test gpdr(maxwellian, 0.0) ≈ im*sqrt(pi) rtol=1e-5
+  @test gpdr(maxwellian, im) ≈ im*0.757872156141312 rtol=1e-5
+  @test gpdr(maxwellian, ComplexF64(-1.52, 0.47), 0) ≈
+    ComplexF64(0.6088888957234254, 0.33494583882874024) rtol=1e-5
+  @test gpdr(maxwellian, big(0.0+0im)) ≈
+    ArbComplex(im*sqrt(pi)) rtol=1e-5
+#    for i in (eps(), 2eps(), 4eps(), 8eps(), sqrt(eps()), 1e-3, 1.0)
+  for i in (10^-10.5,) #(10 .^(0.5:0.5:13)) * eps()
+      #@test gpdr(maxwellian, 1.0+0im*i) ≈ pdr(1.0+0im*i)
+      #@test gpdr(maxwellian, 1.0+ im*i) ≈ pdr(1.0+im*i)
+      #@test gpdr(maxwellian, 1.0- im*i) ≈ pdr(1.0-im*i)
+      @show i
+      @show real(gpdr(maxwellian, 1.0+ im*i)) / real(pdr(1.0+im*i))
+      @show imag(gpdr(maxwellian, 1.0+ im*i)) / imag(pdr(1.0+im*i))
+  end
+end
+
+
 
 end

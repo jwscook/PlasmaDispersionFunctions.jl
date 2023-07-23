@@ -15,9 +15,10 @@ Z(z, n) = ∫integrand(z, n, x)dx + residue(z, n, x)
 """
 module PlasmaDispersionFunctions
 
-using SpecialFunctions
+using LinearAlgebra, QuadGK, SpecialFunctions
 
 export plasma_dispersion_function
+export generalised_plasma_dispersion_function
 
 """@docs
     plasma_dispersion_function(z::T,power::Unsigned=UInt64(0),Z₋₁=missing)
@@ -70,4 +71,89 @@ function plasma_dispersion_function(z::T, n::Integer, Z₋₁=missing
   return plasma_dispersion_function(z::T, Unsigned(n), Z₋₁)
 end
 
+"""
+Takes a function that when integrated between -Inf and +Inf returns value x,
+and returns a new function that returns x when integrated between real(pole)
+and +Inf.
+"""
+function foldnumeratoraboutpole(f::T, pole::Real) where {T<:Function}
+  folded(v::Real) = (f(v + pole) - f(-v + pole)) / v
+  return folded
 end
+function foldnumeratoraboutpole(f::T, pole::Number) where {T<:Function}
+  r, i = reim(pole)
+  function folded(v::Real)
+    a, b, c = f(r + v), f(r - v), 1 / (v - Complex(0, i))
+    return (a - b) * real(c) + (a + b) * Complex(0, imag(c))
+  end
+  return folded
+end
+
+"""
+Transform the limits of an integrand
+quadrature(foldnumeratoraboutpole(integrand, pole), limitsfolder(limits, pole)...)
+"""
+function limitsfolder(ls::AbstractVector{T}, pole) where {T}
+  U = promote_type(T, typeof(pole))
+  return vcat(abs.(U.(ls).- real(pole)), isreal(pole) ? eps(U) : zero(U))
+end
+
+struct WaveDirectionalityHandler{T}
+  kz::T
+end
+function (wdh::WaveDirectionalityHandler)(x)
+  # this way works with DualNumbers
+  return real(x) + im * (real(wdh.kz) < 0 ? -imag(x) : imag(x))
+end
+
+residuesigma(pole::Number) = imag(pole) < 0 ? 2 : imag(pole) == 0 ? 1 : 0
+
+function residue(numerator::F, pole::Number) where {F}
+  principalpart = numerator(pole)
+  σ = residuesigma(pole)
+  output = im * (σ * π * principalpart)
+  iszero(σ) && return zero(output) # defend against overflow
+  return output
+end
+
+quadnorm(x) = maximum(norm.(x))
+function generalised_plasma_dispersion_function(f::F, pole::Number, kz::Number=1;
+    atol=eps(), rtol=sqrt(eps()), lower=-32.0, upper=32.0,
+    quadorder=47, quadnorm::F1=quadnorm) where {F, F1}
+  integrand = foldnumeratoraboutpole(f, pole)
+  Δ_2 = (upper - lower) / 2
+  limits = [lower, upper]
+  overlap = (real(pole) - Δ_2 < upper) && (real(pole) + Δ_2 > lower)
+  if overlap
+    limits[1] = min(limits[1], real(pole) - Δ_2)
+    limits[2] = max(limits[2], real(pole) + Δ_2)
+  end
+  limits = unique(sort(limitsfolder(limits, real(pole))))
+  @assert 2 <= length(limits) <= 3
+  principal = first(quadgk(integrand, limits[1], limits[2],
+    rtol=rtol, atol=atol, order=quadorder, norm=quadnorm))
+  if length(limits) == 3 # can't use limits... due to weird type instability
+    principal += first(quadgk(integrand, limits[2], limits[3],
+      rtol=rtol, atol=atol, order=quadorder, norm=quadnorm))
+  end
+  # run out of digits? real(pole) ± Δ_2 == real(pole)
+  if !overlap
+    limits = limitsfolder(real(pole) .+ [- Δ_2, Δ_2], real(pole))
+    limits = unique(sort(limits))
+    @assert 2 <= length(limits) <= 3
+    principal += first(quadgk(integrand, limits[1], limits[2],
+      rtol=rtol, atol=atol, order=quadorder, norm=quadnorm))
+    if length(limits) == 3
+      principal += first(quadgk(integrand, limits[2], limits[3],
+        rtol=rtol, atol=atol, order=quadorder, norm=quadnorm))
+    end
+  end
+  wdh = WaveDirectionalityHandler(kz)
+  residueatpole = wdh(residue(f, wdh(pole)))
+
+  output = Complex(principal) + residueatpole
+  return output
+end
+
+end
+
