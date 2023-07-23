@@ -10,18 +10,18 @@ Z(z, n) = ∫integrand(z, n, x)dx + residue(z, n, x)
 
 # Example
 ```jldoctest
-  plasma_dispersion_function(0.0) ≈ im * √π
+  plasmadispersionfunction(0.0) ≈ im * √π
 ```
 """
 module PlasmaDispersionFunctions
 
 using LinearAlgebra, QuadGK, SpecialFunctions
 
-export plasma_dispersion_function
-export generalised_plasma_dispersion_function
+export plasmadispersionfunction
+export generalisedplasmadispersionfunction
 
 """@docs
-    plasma_dispersion_function(z::T,power::Unsigned=UInt64(0),Z₋₁=missing)
+    plasmadispersionfunction(z::T,power::Unsigned=UInt64(0),Z₋₁=missing)
 
 Return the value of the plasma dispersion function
 This implementation includes the residue, which is easy to verify
@@ -37,7 +37,7 @@ power-1. If already calculated, passing this in saves some time.
 
 # Example
 ```julia
-  plasma_dispersion_function(1.0)
+  plasmadispersionfunction(1.0)
 ```
 
 # References
@@ -47,7 +47,7 @@ power-1. If already calculated, passing this in saves some time.
   Journal of Quantitative Spectroscopy & Radiative Transfer (2006),
   doi:10.1016/j.jqsrt.2006.08.011
 """
-function plasma_dispersion_function(z::T, power::Unsigned=UInt64(0), Z₋₁=missing
+function plasmadispersionfunction(z::T, power::Unsigned=UInt64(0), Z₋₁=missing
     ) where {T<:Number}
   function _const(i::Signed)
     i == 1 && return T(1) # make sure that 1 is handled quickly
@@ -65,10 +65,10 @@ function plasma_dispersion_function(z::T, power::Unsigned=UInt64(0), Z₋₁=mis
   end
 end
 
-function plasma_dispersion_function(z::T, n::Integer, Z₋₁=missing
+function plasmadispersionfunction(z::T, n::Integer, Z₋₁=missing
     ) where {T}
   n < 0 && throw(ArgumentError("n, $n, must be >= 0"))
-  return plasma_dispersion_function(z::T, Unsigned(n), Z₋₁)
+  return plasmadispersionfunction(z::T, Unsigned(n), Z₋₁)
 end
 
 """
@@ -117,42 +117,21 @@ function residue(numerator::F, pole::Number) where {F}
 end
 
 quadnorm(x) = maximum(norm.(x))
-function generalised_plasma_dispersion_function(f::F, pole::Number, kz::Number=1;
-    atol=eps(), rtol=sqrt(eps()), lower=-32.0, upper=32.0,
-    quadorder=47, quadnorm::F1=quadnorm) where {F, F1}
-  integrand = foldnumeratoraboutpole(f, pole)
-  Δ_2 = (upper - lower) / 2
-  limits = [lower, upper]
-  overlap = (real(pole) - Δ_2 < upper) && (real(pole) + Δ_2 > lower)
-  if overlap
-    limits[1] = min(limits[1], real(pole) - Δ_2)
-    limits[2] = max(limits[2], real(pole) + Δ_2)
-  end
-  limits = unique(sort(limitsfolder(limits, real(pole))))
-  @assert 2 <= length(limits) <= 3
-  principal = first(quadgk(integrand, limits[1], limits[2],
-    rtol=rtol, atol=atol, order=quadorder, norm=quadnorm))
-  if length(limits) == 3 # can't use limits... due to weird type instability
-    principal += first(quadgk(integrand, limits[2], limits[3],
-      rtol=rtol, atol=atol, order=quadorder, norm=quadnorm))
-  end
-  # run out of digits? real(pole) ± Δ_2 == real(pole)
-  if !overlap
-    limits = limitsfolder(real(pole) .+ [- Δ_2, Δ_2], real(pole))
-    limits = unique(sort(limits))
-    @assert 2 <= length(limits) <= 3
-    principal += first(quadgk(integrand, limits[1], limits[2],
-      rtol=rtol, atol=atol, order=quadorder, norm=quadnorm))
-    if length(limits) == 3
-      principal += first(quadgk(integrand, limits[2], limits[3],
-        rtol=rtol, atol=atol, order=quadorder, norm=quadnorm))
-    end
-  end
+
+function frtol(z::T) where {T<:Number}
+  U = float(real(T))
+  return max(min(sqrt(eps(U)), angle(z)), eps(U))
+end
+frtol(z::T) where {T<:Real} = sqrt(eps(T))
+function generalisedplasmadispersionfunction(f::F, pole::Number, kz::Number=1;
+    atol=eps(), rtol=frtol(pole), quadorder=47, quadnorm::F1=quadnorm
+    ) where {F, F1}
+  integrand = foldnumeratoraboutpole(f, pole) # also divide by (v - pole)
+  principal = first(quadgk(integrand, 0, Inf, rtol=rtol, atol=atol,
+                           order=quadorder, norm=quadnorm))
   wdh = WaveDirectionalityHandler(kz)
   residueatpole = wdh(residue(f, wdh(pole)))
-
-  output = Complex(principal) + residueatpole
-  return output
+  return Complex(principal) + residueatpole
 end
 
 end

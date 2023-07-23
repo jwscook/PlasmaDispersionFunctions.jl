@@ -8,20 +8,20 @@ erfcx(x::Complex{BigFloat}) = erfcx(ArbComplex(x))
 Random.seed!(0)
 
 @testset "Plasma dispersion function" begin
-  @test plasma_dispersion_function(0.0) ≈ im*sqrt(pi) rtol=1e-5
-  @test plasma_dispersion_function(im) ≈ im*0.757872156141312 rtol=1e-5
-  @test plasma_dispersion_function(ComplexF64(-1.52, 0.47), 0) ≈
+  @test plasmadispersionfunction(0.0) ≈ im*sqrt(pi) rtol=1e-5
+  @test plasmadispersionfunction(im) ≈ im*0.757872156141312 rtol=1e-5
+  @test plasmadispersionfunction(ComplexF64(-1.52, 0.47), 0) ≈
     ComplexF64(0.6088888957234254, 0.33494583882874024) rtol=1e-5
-  @test plasma_dispersion_function(big(0.0+0im)) ≈
+  @test plasmadispersionfunction(big(0.0+0im)) ≈
     ArbComplex(im*sqrt(pi)) rtol=1e-5
 end
 
 @testset "using Z₋₁" begin
-  Z0 = plasma_dispersion_function(0.0, 0)
-  Z1 = plasma_dispersion_function(0.0, 1)
-  @test Z1 == plasma_dispersion_function(0.0, 1, Z0)
-  Z2 = plasma_dispersion_function(0.0, 2)
-  @test Z2 == plasma_dispersion_function(0.0, 2, Z1)
+  Z0 = plasmadispersionfunction(0.0, 0)
+  Z1 = plasmadispersionfunction(0.0, 1)
+  @test Z1 == plasmadispersionfunction(0.0, 1, Z0)
+  Z2 = plasmadispersionfunction(0.0, 2)
+  @test Z2 == plasmadispersionfunction(0.0, 2, Z1)
 end
 
 @testset "vs quadrature" begin
@@ -37,7 +37,7 @@ end
       end
       σ = imag(z) < 0 ? 2 : imag(z) == 0 ? 1 : 0
       cauchyresidue = im * (σ * π * principal(z))
-      b = plasma_dispersion_function(z, pow)
+      b = plasmadispersionfunction(z, pow)
       a = principalpart + cauchyresidue
       @test real(a) ≈ real(b) rtol=sqrt(eps()) atol=0.0
       @test imag(a) ≈ imag(b) rtol=sqrt(eps()) atol=0.0
@@ -61,10 +61,10 @@ end
 end
 
 @testset "check errors are caught" begin
-  @test_throws ArgumentError plasma_dispersion_function(1.0, -1)
+  @test_throws ArgumentError plasmadispersionfunction(1.0, -1)
 end
-gpdr = generalised_plasma_dispersion_function
-pdr = plasma_dispersion_function
+gpdr = generalisedplasmadispersionfunction
+pdr = plasmadispersionfunction
 @testset "Genearlised plasma dispersion function" begin
   maxwellian(x) = exp(-x^2) / sqrt(π)
   @test gpdr(maxwellian, 0.0) ≈ im*sqrt(pi) rtol=1e-5
@@ -73,14 +73,9 @@ pdr = plasma_dispersion_function
     ComplexF64(0.6088888957234254, 0.33494583882874024) rtol=1e-5
   @test gpdr(maxwellian, big(0.0+0im)) ≈
     ArbComplex(im*sqrt(pi)) rtol=1e-5
-#    for i in (eps(), 2eps(), 4eps(), 8eps(), sqrt(eps()), 1e-3, 1.0)
-  for i in (10^-10.5,) #(10 .^(0.5:0.5:13)) * eps()
-      #@test gpdr(maxwellian, 1.0+0im*i) ≈ pdr(1.0+0im*i)
-      #@test gpdr(maxwellian, 1.0+ im*i) ≈ pdr(1.0+im*i)
-      #@test gpdr(maxwellian, 1.0- im*i) ≈ pdr(1.0-im*i)
-      @show i
-      @show real(gpdr(maxwellian, 1.0+ im*i)) / real(pdr(1.0+im*i))
-      @show imag(gpdr(maxwellian, 1.0+ im*i)) / imag(pdr(1.0+im*i))
+  for i in (10 .^(0.5:0.5:16)) * eps()
+    @test gpdr(maxwellian, 1.0+ im*i) ≈ pdr(1.0+im*i)
+    @test gpdr(maxwellian, 1.0- im*i) ≈ pdr(1.0-im*i)
   end
 end
 
