@@ -122,7 +122,7 @@ function frtol(z::T) where {T<:Number}
   U = float(real(T))
   return max(min(sqrt(eps(U)), angle(z)), eps(U))
 end
-frtol(z::T) where {T<:Real} = sqrt(eps(T))
+frtol(z::T) where {T<:Real} = sqrt(eps(float(T)))
 function generalisedplasmadispersionfunction(f::F, pole::Number, kz::Number=1;
     atol=eps(), rtol=frtol(pole), quadorder=8, quadnorm::F1=quadnorm
     ) where {F, F1}
