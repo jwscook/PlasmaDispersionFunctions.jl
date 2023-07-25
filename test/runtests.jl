@@ -101,6 +101,15 @@ end
     result = gpdf(fnorm, znorm)
     @test result ≈ expected
   end
+
+  @testset "scaling of large thermal velocities" begin
+    for i in 0:10
+      vth = 10.0^i
+      g(x) = exp(-x^2/vth^2)/sqrt(pi)/vth
+      result = gpdf(g, vth)
+      @test pdf(1.0)/vth ≈ result
+    end
+  end
 end
 
 end

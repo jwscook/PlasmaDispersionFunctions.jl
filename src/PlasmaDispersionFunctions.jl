@@ -98,6 +98,19 @@ function limitsfolder(ls::AbstractVector{T}, pole) where {T}
   return vcat(abs.(U.(ls).- real(pole)), isreal(pole) ? eps(U) : zero(U))
 end
 
+
+"""
+Transform a function from domain [-∞, ∞]ⁿ down to [-1, 1]ⁿ
+"""
+struct TransformFromInfinity{F<:Function, T}
+  f::F
+  scale::T
+end
+function (tfi::TransformFromInfinity)(x)
+  @assert 0 <= x <= 1
+  return tfi.scale / (1 - x)^2 * tfi.f(tfi.scale * x / (1 - x))
+end
+
 struct WaveDirectionalityHandler{T}
   kz::T
 end
@@ -124,10 +137,11 @@ function frtol(z::T) where {T<:Number}
 end
 frtol(z::T) where {T<:Real} = sqrt(eps(float(T)))
 function generalisedplasmadispersionfunction(f::F, pole::Number, kz::Number=1;
-    atol=eps(), rtol=frtol(pole), quadorder=8, quadnorm::F1=quadnorm
-    ) where {F, F1}
-  integrand = foldnumeratoraboutpole(f, pole) # also divide by (v - pole)
-  principal = first(quadgk(integrand, 0, Inf, rtol=rtol, atol=atol,
+    atol=eps(), rtol=frtol(pole), quadorder=8, quadnorm::F1=quadnorm,
+    vnorm=abs(pole) == 0 ? one(typeof(abs(pole))) : abs(pole)) where {F, F1}
+  foldedf = foldnumeratoraboutpole(f, pole) # also divide by (v - pole)
+  integrand = TransformFromInfinity(foldedf, vnorm)
+  principal = first(quadgk(integrand, 0, 1, rtol=rtol, atol=atol,
                            order=quadorder, norm=quadnorm))
   wdh = WaveDirectionalityHandler(kz)
   residueatpole = wdh(residue(f, wdh(pole)))
