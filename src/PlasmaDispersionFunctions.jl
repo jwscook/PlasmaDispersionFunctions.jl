@@ -85,7 +85,7 @@ end
 function (f::FoldAboutPole{F, <:Number})(v) where {F}
   r, i = reim(f.pole)
   a, b, c = f.f(r + v), f.f(r - v), 1 / (v - Complex(0, i))
-  return (a - b) * real(c) + (a + b) * Complex(0, imag(c))
+  return real(c) * (a - b) + im * imag(c) * (a + b)
 end
 
 """
@@ -97,18 +97,20 @@ struct TransformFromInfinity{F, T}
 end
 function (tfi::TransformFromInfinity)(x)
   @assert 0 <= x <= 1
-  return tfi.scale / (1 - x)^2 * tfi.f(tfi.scale * x / (1 - x))
+  inv1_x= 1 / (1 - x)
+  common = tfi.scale * inv1_x
+  return common * inv1_x * tfi.f(common * x)
 end
 
 """
 Deal with the sign of the wavenumber
 """
-struct WaveDirectionalityHandler{T}
+struct ParallelWavenumberHandler{T}
   kz::T
 end
-function (wdh::WaveDirectionalityHandler)(x)
+function (pwh::ParallelWavenumberHandler)(x)
   # this way works with DualNumbers
-  return real(x) + im * (real(wdh.kz) < 0 ? -imag(x) : imag(x))
+  return real(x) + im * (real(pwh.kz) < 0 ? -imag(x) : imag(x))
 end
 
 residuesigma(pole::Number) = imag(pole) < 0 ? 2 : imag(pole) == 0 ? 1 : 0
@@ -136,8 +138,8 @@ function generalisedplasmadispersionfunction(f::F, pole::Number, kz::Number=1;
   integrand = TransformFromInfinity(foldedf, vnorm)
   principal = first(quadgk(integrand, 0, 1, rtol=rtol, atol=atol,
                            order=quadorder, norm=quadnorm))
-  wdh = WaveDirectionalityHandler(kz)
-  residueatpole = wdh(residue(f, wdh(pole)))
+  pwh = ParallelWavenumberHandler(kz)
+  residueatpole = pwh(residue(f, pwh(pole)))
   return Complex(principal) + residueatpole
 end
 
