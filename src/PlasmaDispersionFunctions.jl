@@ -76,33 +76,22 @@ Takes a function that when integrated between -Inf and +Inf returns value x,
 and returns a new function that returns x when integrated between real(pole)
 and +Inf.
 """
-function foldnumeratoraboutpole(f::T, pole::Real) where {T<:Function}
-  folded(v::Real) = (f(v + pole) - f(-v + pole)) / v
-  return folded
-end
-function foldnumeratoraboutpole(f::T, pole::Number) where {T<:Function}
-  r, i = reim(pole)
-  function folded(v::Real)
-    a, b, c = f(r + v), f(r - v), 1 / (v - Complex(0, i))
-    return (a - b) * real(c) + (a + b) * Complex(0, imag(c))
-  end
-  return folded
+struct FoldAboutPole{F, T}
+  f::F
+  pole::T
 end
 
-"""
-Transform the limits of an integrand
-quadrature(foldnumeratoraboutpole(integrand, pole), limitsfolder(limits, pole)...)
-"""
-function limitsfolder(ls::AbstractVector{T}, pole) where {T}
-  U = promote_type(T, typeof(pole))
-  return vcat(abs.(U.(ls).- real(pole)), isreal(pole) ? eps(U) : zero(U))
+(f::FoldAboutPole{F, <:Real})(v) where {F} = (f.f(v + f.pole) - f.f(-v + f.pole)) / v
+function (f::FoldAboutPole{F, <:Number})(v) where {F}
+  r, i = reim(f.pole)
+  a, b, c = f.f(r + v), f.f(r - v), 1 / (v - Complex(0, i))
+  return (a - b) * real(c) + (a + b) * Complex(0, imag(c))
 end
-
 
 """
 Transform a function from domain [-∞, ∞]ⁿ down to [-1, 1]ⁿ
 """
-struct TransformFromInfinity{F<:Function, T}
+struct TransformFromInfinity{F, T}
   f::F
   scale::T
 end
@@ -111,6 +100,9 @@ function (tfi::TransformFromInfinity)(x)
   return tfi.scale / (1 - x)^2 * tfi.f(tfi.scale * x / (1 - x))
 end
 
+"""
+Deal with the sign of the wavenumber
+"""
 struct WaveDirectionalityHandler{T}
   kz::T
 end
@@ -140,7 +132,7 @@ function generalisedplasmadispersionfunction(f::F, pole::Number, kz::Number=1;
     atol=eps(), rtol=frtol(pole), quadorder=8, quadnorm::F1=quadnorm,
     vnorm=abs(pole) == 0 ? one(typeof(abs(pole))) : abs(pole)) where {F, F1}
   @assert vnorm > 0
-  foldedf = foldnumeratoraboutpole(f, pole) # also divide by (v - pole)
+  foldedf = FoldAboutPole(f, pole) # also divide by (v - pole)
   integrand = TransformFromInfinity(foldedf, vnorm)
   principal = first(quadgk(integrand, 0, 1, rtol=rtol, atol=atol,
                            order=quadorder, norm=quadnorm))
